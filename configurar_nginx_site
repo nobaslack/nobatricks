@@ -1,0 +1,64 @@
+Configuración pagina de mantenimiento en NGINX
+Posted on 29 abril, 2016 by rokitoh
+
+En esta entrada veremos una configuración para redirigir todas las peticiones hacía una ruta. la cual nosotros emplearemos de mantenimiento.
+
+server {
+# listen 80 default_server;
+#server_name _;
+listen 443 ssl;
+server_name www.red-orbita.com red-orbita.com;
+
+ssl_certificate /etc/pki/tls/certs/CertReweb.crt;
+ssl_certificate_key /etc/pki/tls/private/ClaveReweb.key;
+ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+ssl_ciphers HIGH:!aNULL:!MD5;
+
+#charset koi8-r;
+
+#access_log logs/host.access.log main;
+
+# Load configuration files for the default server block.
+include /etc/nginx/default.d/*.conf;
+
+location ~ ^/(images/|img/|javascript/|js/|css/|stylesheets/|flash/|media/|static/|favicon.ico) {
+allow all;
+
+}
+
+location ~* \.(html|php|htm)$ {
+
+rewrite ^ /index.html permanent;
+}
+location / {
+root /usr/share/nginx/html/maintenance;
+index index.html index.htm;
+allow all;
+}
+
+error_page 300 301 302 303 304 /index2.html;
+location = /index2.html {
+root /usr/share/nginx/html;
+allow all;
+}
+
+error_page 404 /index.html;
+location = /index.html {
+root /usr/share/nginx/html;
+allow all;
+}
+
+# redirect server error pages to the static page /50x.html
+#
+error_page 500 502 503 504 /index.html;
+location = index.html {
+root /usr/share/nginx/html;
+allow all;
+}
+
+error_page 300 301 302 303 304 /index.html;
+root /usr/share/nginx/html;
+
+}
+
+Un saludo

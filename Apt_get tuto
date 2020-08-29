@@ -1,0 +1,87 @@
+Apt-get:
+
+Actualizar Listas: apt-get update
+Chequear actualización de Listas: apt-get check
+Instalar paquete: apt-get install nombre_paquete
+Reinstalar paquete: apt-get install --reinstall nombre_paquete
+Actualizar Distro: apt-get upgrade / apt-get dist-upgrade / apt-get full-upgrade
+Actualizar paquete: apt-get upgrade nombre_paquete
+Actualizar paquetes usando dselect: apt-get dselect-upgrade
+Eliminar paquetes: apt-get remove / apt-get autoremove
+Purgar paquetes: apt-get purge
+Conocer paquete: apt-cache show nombre_paquete / apt-cache showpkg nombre_paquete
+Listar paquetes: apt-cache search nombre_paquete
+Listar dependencias de un paquete: apt-cache depends nombre_paquete
+Listar paquetes instalados: apt-cache pkgnames --generate / apt-show-versions
+Validar dependencias incumplidas de un paquete: apt-cache unmet nombre_paquete
+Configurar dependencias de un paquete: apt-get build-dep nombre_paquete
+Descargar paquetes: apt-get source nombre_paquete
+Corregir problemas post-instalación de paquetes: apt-get install -f
+Forzar ejecución de orden de comando: apt-get comando  -y
+Eliminar descargas de paquetes: apt-get clean
+Eliminar paquetes obsoletos y sin usos: apt-get autoclean
+Otros importantes: apt-file update / apt-file search nombre_paquete / apt-file list nombre_paquete
+
+Nota: Para mayor información sobre este comando ejecute la orden de comando: man apt-get  
+ 
+
+Aptitude:
+
+Actualizar Listas: aptitude update
+Instalar paquete: aptitude install nombre_paquete
+Reinstalar paquete: aptitude reinstall nombre_paquete
+Actualizar Distro: aptitude upgrade / aptitude safe-upgrade / aptitude full-upgrade
+Actualizar paquete: aptitude upgrade nombre_paquete
+Eliminar paquetes: aptitude remove
+Purgar paquetes: aptitude purge
+Listar paquetes: aptitude search nombre_paquete
+Listar paquetes instalados / rotos: apt search [*] | grep "^i" / apt search [*] | grep "^B"
+Configurar dependencias de un paquete: aptitude build-dep nombre_paquete
+Descargar paquetes: aptitude download nombre_paquete
+Corregir problemas post-instalación de paquetes: aptitude install -f
+Forzar ejecución de orden de comando: aptitude comando  -y
+Eliminar descargas de paquetes: aptitude clean
+Eliminar paquetes obsoletos y sin usos: aptitude autoclean
+Otros importantes: aptitude (un)hold, aptitude (un)markauto, why, why-not
+Conocer paquete:
+aptitude show nombre_paquete
+aptitude show "?installed ?section(fonts)" | egrep '(Paquete|Estado|Versión)'
+aptitude show "?not(?installed) ?section(fonts)" | egrep '(Paquete|Estado|Versión)'
+aptitude show "?section(fonts)" | egrep '(Paquete|Estado|Versión)'
+
+Nota: Para mayor información sobre este comando ejecute la orden de comando: man aptitude  
+
+Apt:
+
+Actualizar Listas: apt update
+Instalar paquete: apt install nombre_paquete
+Reinstalar paquete: apt install --reinstall nombre_paquete
+Actualizar Distro: apt upgrade / apt full-upgrade
+Actualizar paquete: apt upgrade nombre_paquete
+Eliminar paquetes: apt remove / apt autoremove
+Purgar paquetes: apt purge
+Conocer paquete: apt show nombre_paquete
+Listar paquetes: apt search nombre_paquete
+Listar paquetes instalados / actualizables: apt list --installed / apt list --upgradeable
+Corregir problemas post-instalación de paquetes: apt install -f
+Forzar ejecución de orden de comando: apt comando  -y
+Eliminar descargas de paquetes: apt clean
+Eliminar paquetes obsoletos y sin usos: apt autoclean
+Otros importantes: apt edit-sources
+
+Nota: Para mayor información sobre este comando ejecute la orden de comando: man apt
+
+DPKG:
+
+Instalar paquete: dpkg -i nombre_paquete
+Eliminar paquete: dpkg -r nombre_paquete / dpkg --force -r nombre_paquete / dpkg --purge -r nombre_paquete
+Purgar paquete: dpkg -P nombre_paquete
+Descomprimir paquete: dpkg --unpack nombre_paquete
+Conocer paquete: dpkg -c nombre_paquete / dpkg --info nombre_paquete / dpkg -L nombre_paquete
+Buscar archivos de paquetes instalados: dpkg -S nombre_archivo
+Configurar paquetes: dpkg --configure nombre_paquete / dpkg --configure --pending / dpkg --configure -a
+Listar paquetes: dpkg -l patrón_búsqueda / dpkg --get-selections nombre_paquete / dpkg --get-selections | grep -v deinstall > lista-paquetes-actuales.txt
+
+
+
+

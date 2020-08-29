@@ -1,0 +1,124 @@
+Create SSL certificates
+
+One important part when setting everything up is to create SSL certificates to make connections more secure. An SSL certificate allow us to properly identify the server we are accessing to, to know it is who it is saying he is and communicate with it in a secure way, encrypting information to send and decrypting the received information. So it is much more difficult to read our communication by a third person.
+
+We can use these certificates in our web server, or mail server (that will be my examples with this technology), but you can use them in so many protocols.
+
+Normally, this concept is based in trust. We trust in an external authority which verifies the certificate from server X is real and so it is who it’s saying it is, so we can make a secure connection with our bank, for example; this third person digitally signs our bank’s certificate. Certificate Authorities or CAs are default trusted by our browsers and these certificates are used to verify digital signatures. Very old browsers may not have all CAs in their database and they may not verify some certificates, but the certificate may be signed by someone we don’t trust and our software will warn us.
+
+A certificate verification process is not free. CAs are companies or organizations, can sign our certificates after verifying our identity and the use we will give to our certificate to make sure we are not going to make an ilegal site or something like this (some CAs may not verify this, and they may be cheaper). But, if we are using our certificate for educational, internal or our personal server purposes we can make self-signed certificates, so we will sign our certificates free. We won’t be trusted people for our browsers, but, we trust in ourselves, I think!
+
+So let’s start. I assume openSSL is installed on our server, and this guide will be valid in all Linux distributions and may be on some other *nix systems, even if you experiment with Windows (I don’t think there will be lot of things to change). I’ll divide this guide in 3 parts:
+
+    * Create our certificate
+    * Create signing request.
+    * Self-signed certificate.
+    * Create root certificate
+    * Sign with CA.
+    * Storing information
+    * Tips and Tricks
+
+Create our certificate
+
+We may want to create a directory to place all the files we’re going to generate.
+
+The first thing is to create the private key we will use for encryption. We will create here a 2048bit key (256bytes), we can create a 9192 key if we want to, but it will be computationally heavy to work with, it will be very slow. 2048bit is ok by now. As august 2013, some servers are migrating from 1024 to 2048. 4096 is ok, but it may not be supported by some CA in order to sign it.
+
+    $ openssl genrsa -des3 -out myserver.key 2048
+    Generating RSA private key, 2048 bit long modulus
+    ……………+++
+    ……………………………………………………………………..+++
+    e is 65537 (0x10001)
+    Enter pass phrase for server.key:
+    Verifying – Enter pass phrase for server.key: 
+
+This way asks for a passphrase, what is ok, and more secure, but if the services that uses the certificate must be turned on automatically, it won’t be ok. Even we may not remember the password if we restart the service after 10 months. So we can create this key without the -des3 argument, or we can remove this password:
+
+    $ openssl rsa -in myserver.key -out myserver_nopass.key
+
+Just promise this file will be kept secret
+Create signing request
+
+The we must create a signing request. It will be the process before the creation of the full certificate. We will put information about us (information to be validated and verified by the CA), optionally a password (I usually leave it blank to use them easily in automated processes). The most important field is the Common Name which indicates for example your domain name or subdomain where it will be located (if exists). If we are creating a wildcard certificate it will apply to all subdomains inside a domain, it can be specificated by “*.mydomain.ext”:
+
+    $ openssl req -new -key myserver.key -out myserver.csr
+    You are about to be asked to enter information that will be incorporated
+    into your certificate request.
+    What you are about to enter is what is called a Distinguished Name or a DN.
+    There are quite a few fields but you can leave some blank
+    For some fields there will be a default value,
+    If you enter ‘.’, the field will be left blank.
+    —–
+    Country Name (2 letter code) [AU]:ES
+    State or Province Name (full name) [Some-State]:Malaga
+    Locality Name (eg, city) []:Malaga
+    Organization Name (eg, company) [Internet Widgits Pty Ltd]:Home
+    Organizational Unit Name (eg, section) []:My Desk
+    Common Name (e.g. server FQDN or YOUR name) []:home.server.local
+    Email Address []:g******@totaki.com
+
+    Please enter the following ‘extra’ attributes
+    to be sent with your certificate request
+    A challenge password []:
+    An optional company name []: 
+
+And this CSR file is what we must give our CA to give us an SSL certificate.
+Create self-signed certificate
+
+So we want to sign our certificate with our own information. Once we have created the signing request, we must sign it with the same information we have. That’s what we must do:
+
+    $ openssl x509 -req -days 365 -in myserver.csr -signkey myserver.key -out myserver.crt
+
+In -days argument, we can put the certification duration we want. It usually renews yearly, but it can be renewed each 100 years… but I think we should change our key length before.
+Create root certificate
+
+This step must be done only if we want to act as a Certificate Authority, or we have some private services or devices and want to sign them with the same CA. We may act as a trusted authority with our devices, our resources or our customers in a private network.
+
+To create a root certificate, let’s create first the root private key (the same we did before with our private key):
+
+    $ openssl genrsa -out myrootCA.key 2048
+
+Then, create the certificate:
+
+    $ openssl req -new -nodes -x509 -key myrootCA.key -days 730 -out myrootCA.pem
+
+It will ask us the same information as a signing request, but must be different than the signing request, at least the Common Name (if the information is the same, why not self-sign it?)
+Sign with CA
+
+This must be done only by the CA (or us if we want to sign with a root certificate)
+
+    $ openssl x509 -req -in myserver.csr -CA myrootCA.pem -CAkey myrootCA.key -CAcreateserial -out myserver.crt -days 365
+    Signature ok
+    subject=/C=ES/ST=Andalucia/L=Malaga/O=Home/OU=Desk/CN=*.totaki.com/emailAddress=g********@totaki.com
+    Getting CA Private Key 
+
+(The output is an example).
+Storing information
+
+Our certificate information is sensible data, so it must be stored securely (copy that into a SD card and put it on a necklace, always with you).
+
+But it must be stored on your server with the less privileges as possible. For example the private key only accessed by root (chmod 0600 myserver.key; chown root:root myserver.key), the cetificate can have 0640 permission allowing owner (read + write) and group (read). You are free to put some of these files into /etc/xxx directory.
+Tips and Tricks
+
+If you are just testing, creating certificates, signing requests several times, you must be bored of entering your information again and again. you can use:
+
+    $ echo “COUNTRY
+    STATE
+    CITY
+    Organization
+    Section
+    CommonName
+    email@domain.ext
+
+    ” | openssl req -new -key myserver.key -out myserver.csr
+
+To make a signing request, for example. It won’t ask us interactively these data. Or we can use:
+
+    openssl req -new -key myserver.key -out myserver.cst -subj “/C=ES/ST=Spain/L=Malaga/O=Home/CN=commonName”
+
+Also, if we are creating certificates and want to know the information of one of them, just do this:
+
+    $ openssl x509 -text -in mycertificate.crt
+
+
+

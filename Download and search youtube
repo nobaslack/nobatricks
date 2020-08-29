@@ -1,0 +1,16 @@
+Search and play youtube videos directly to terminal (no X needed)
+Delete
+Mark Unread	Sticky	Label	Archive	Share	Menu	|	1:30 AM	|	snipertyler	|	Comments	|	
+$ pyt() { id=$(curl -s 'https://www.youtube.com/results?search_query='$(echo "$1"|tr ' ' +)|grep -o '"[[:alnum:]]\{11\}"'|sed -n 3p|cut -b 2-12); youtube-dl -q 'https://www.youtube.com/watch?v='"$id" -o -|mplayer -vo null /dev/fd/3 3<&0 </dev/tty; }
+
+pyt 'Stairway to heaven - Led Zeppelin'
+
+pyt 'brain damage - Pink Floyd'
+
+No web browser or even X needed. Just a cli and internet connection!
+
+mplayer is pauseable and can skip ahead
+
+This may break if youtube changes their search html.
+
+See sample output for less compressed command (displayed meets 255 char limit by removing spaces between pipes | - both work)

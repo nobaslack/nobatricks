@@ -1,0 +1,34 @@
+Read and write to TCP sockets with common bash tools
+Delete
+Mark Unread	Sticky	Label	Archive	Share	Menu	|	Thursday, July 30, 2015 5:12 PM	|	tyzbit (http://qtosw.com)	|	Comments	|	
+$ exec 5<>/dev/tcp/time.nist.gov/13; cat <&5 & cat >&5; exec 5>&-
+
+Ever needed to test firewalls but didn't have netcat, telnet or FTP?
+
+Enter /dev/tcp, your new best friend. /dev/tcp/(hostname)/(port) is a virtual device that bash can use to talk to TCP ports
+
+First, exec sets up a redirect for /dev/tcp/$server/$host to file descriptor 5.
+
+Then, as per some excellent feedback from @flatcap, we launch a redirect from file descriptor 5 to STDOUT (implied by
+
+Finally, when the second cat dies (the connection is closed), we clean up the file descriptor with 'exec 5>&-'.
+
+This one-liner opens a connection on a port to a server and lets you read and write to it from the terminal.
+
+Example test
+
+server=127.0.0.1
+
+port=22
+
+You should see a response from your SSH server:
+
+SSH-2.0-OpenSSH_6.6.1p1 Ubuntu-2ubuntu2
+
+Typing TEST should net you a Protocol Mismatch:
+
+TEST
+
+Protocol mismatch.
+
+It can be used for FTP, HTTP, NTP, or netcat listening on a port (makes for a simple chat client!)

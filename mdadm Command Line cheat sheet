@@ -1,0 +1,132 @@
+mdadm Command Line cheat sheet
+Date Posted: August 13, 2015 at 6:52 pm, Written by admin || In Centos
+
+As a web hosting provider (Not to point out the obvious ;) ) many of our clients have managed Dedicated servers with us, and not all can afford  to have Hardware Raid setup.  For those customers on a tight Budget we offer to configure and setup Linux Software raid (mdadm).
+
+The purpose of this guide is to show you some simple common commands, that can help you when you need to configure Mdadm
+Create a new RAID array
+
+Create (mdadm —create) is used to create a new array:
+Shell
+mdadm --create --verbose /dev/md0 --level=1 /dev/sda1 /dev/sdb2
+1
+	
+mdadm --create --verbose /dev/md0 --level=1 /dev/sda1 /dev/sdb2
+
+ 
+/etc/mdadm.conf
+
+This is the main configuration file for mdadm and is located at /etc/mdadm.conf in Centos.  when you have created a raid array you then need to add them to that file:
+Shell
+mdadm --detail --scan >> /etc/mdadm.conf
+1
+	
+mdadm --detail --scan >> /etc/mdadm.conf
+
+ 
+Remove a disk from an array
+
+You can’t remove a disk directly from the array, unless it’s failed, so you must first force it to fail(if the drive has truly  failed then it will already be  in the failed state and this step is not needed):
+Shell
+mdadm --fail /dev/md0 /dev/sda1
+1
+	
+mdadm --fail /dev/md0 /dev/sda1
+
+and now you can remove it:
+Shell
+mdadm --remove /dev/md0 /dev/sda1
+1
+	
+mdadm --remove /dev/md0 /dev/sda1
+
+ 
+Add a disk to an existing array
+
+We can add a new disk to an array (This is normal done when needing to replace a failed one):
+Shell
+mdadm --add /dev/md0 /dev/sdb1
+1
+	
+mdadm --add /dev/md0 /dev/sdb1
+
+ 
+Verifying the status of the RAID arrays
+
+We can check the status of the arrays on the system with:
+Shell
+cat /proc/mdstat
+1
+	
+cat /proc/mdstat
+
+or
+Shell
+mdadm --detail /dev/md0
+1
+	
+mdadm --detail /dev/md0
+
+The output of this command will look like:
+Shell
+cat /proc/mdstat Personalities : [raid1] md0 : active raid1 sdb1[1] sda1[0] 104320 blocks [2/2] [UU] md1 : active raid1 sdb3[1] sda3[0] 19542976 blocks [2/2] [UU] md2 : active raid1 sdb4[1] sda4[0] 223504192 blocks [2/2] [UU]
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+	
+cat /proc/mdstat
+Personalities : [raid1]
+md0 : active raid1 sdb1[1] sda1[0]
+104320 blocks [2/2] [UU]
+ 
+md1 : active raid1 sdb3[1] sda3[0]
+19542976 blocks [2/2] [UU]
+ 
+md2 : active raid1 sdb4[1] sda4[0]
+223504192 blocks [2/2] [UU]
+
+ 
+
+The output you can see both drives are used and are working fine – U. A failed drive will show as F, while a degraded array will miss the second disk –
+
+Note: while monitoring the status of a RAID rebuild operation, you can use the watch command
+Shell
+watch cat /proc/mdstat
+1
+	
+watch cat /proc/mdstat
+
+ 
+Stop and delete a RAID array
+
+If you want to completely remove a raid array we have to stop if first and then remove it:
+Shell
+mdadm --stop /dev/md0 mdadm --remove /dev/md0
+1
+2
+	
+mdadm --stop /dev/md0
+mdadm --remove /dev/md0
+
+and finally you can even delete the superblock from the individual drives:
+Shell
+mdadm --zero-superblock /dev/sda
+1
+	
+mdadm --zero-superblock /dev/sda
+
+Finally when using RAID1 arrays, where we have  identical partitions on both drives the following command  can be useful to copy the partitions from sda to sdb:
+Shell
+sfdisk -d /dev/sda | sfdisk /dev/sdb
+1
+	
+sfdisk -d /dev/sda | sfdisk /dev/sdb
+
+(this will dump the partition table of sda, removing completely the existing partitions on sdb, so be sure you want this before running this command, as it will not warn you at all).

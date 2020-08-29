@@ -1,0 +1,145 @@
+Certificado SSL auto-firmado
+Posted on 27 abril, 2016 by rokitoh
+
+Un certificado digital o certificado electrónico es un fichero informático generado por una entidad de servicios de certificación que asocia unos datos de identidad a una persona física, organismo o empresa confirmando de esta manera su identidad digital en Internet.
+
+No obstante, muchas veces nos interesa generar un certificado auto-firmado para pruebas o uso interno.
+
+Generar una Clave Privada
+
+En primer lugar creamos la clave privada RSA, para ello ejecutamos el siguiente comando:
+
+ 
+
+    openssl genrsa -out redorbita.key 2048
+
+ 
+
+Generar un CSR (solicitud de firma de certificado)
+
+ 
+
+El fichero CSR se puede emplear de dos maneras. Principalmente, el CSR se enviará a una autoridad certificadora, quien verificará la identidad del solicitante y expedirá un certificado firmado.
+
+La segunda opción, la cual realizaremos nosotros es un certificado auto-firmado.
+
+ 
+
+    [rokitoh@redorbita~]# openssl genrsa -out redorbitar.key 2048
+
+     
+
+    Country Name (2 letter code) [GB] :SP
+
+    State or Province Name (full name) [Berkshire] :Madrid
+
+    Locality Name (eg, city) [Newbury] :Madrid
+
+    Organization Name (eg, company) [My Company Ltd] :red-orbita
+
+    Organizational Unit Name (eg, section) [] :Information Technology
+
+    Common Name (eg, your name or your server’s hostname) [] :pre.red-orbita.com
+
+    Email Address [] :pre.red-orbita.com at ymail dot com
+
+    Please enter the following ‘extra’ attributes
+
+    to be sent with your certificate request
+
+    A challenge password []:
+
+    An optional company name []:
+
+ 
+
+Certificado auto-firmado
+
+ 
+
+    [rokitoh@redorbita~]# openssl x509 -req -days 365 -in redorbita.csr -signkey redorbita.key -out redorbita.crt
+
+ 
+
+Configurar certificado en Apache
+
+ 
+
+Copiamos los certificados generados
+
+ 
+
+    [rokitoh@redorbita~]# cp redorbita.crt /usr/local/apache/conf/
+    [rokitoh@redorbita~]# cp redorita.key /usr/local/apache/conf/
+
+ 
+
+Configurar host virtuales con SSL activado
+
+  
+
+    SSLEngine on
+    SSLCertificateFile /usr/local/apache/conf/ssl.crt/server.crt
+    SSLCertificateKeyFile /usr/local/apache/conf/ssl.key/server.key
+    SetEnvIf User-Agent “.*MSIE.*” nokeepalive ssl-unclean-shutdown
+    CustomLog logs/ssl_request_log \
+    “%t %h %{SSL_PROTOCOL}x %{SSL_CIPHER}x \”%r\” %b”
+
+ 
+
+ 
+
+Reiniciar Apache
+
+ 
+
+     [rokitoh@redorbita~]# /etc/init.d/httpd restart
+
+ 
+
+Configurar certificado en Nginx
+
+ 
+
+Copiamos los certificados generados
+
+ 
+
+    [rokitoh@redorbita~]# cp redorbita.crt /usr/local/nginx/conf/
+    [rokitoh@redorbita~]# cp redorita.key /usr/local/nginx/conf/
+
+ 
+
+Configurar host virtuales con SSL activado
+
+ 
+
+             ssl on;
+
+    ssl_certificate /usr/local/nginx/redorbita.crt;
+
+    ssl_certificate_key /usr/local/nginx/redorbita.key;
+
+    ssl_session_timeout 5m;
+
+    ssl_protocols SSLv3 TLSv1;
+
+    ssl_ciphers ALL:!ADH:!EXPORT56:RC4+RSA:+HIGH:+MEDIUM:+LOW:+SSLv3:+EXP;
+
+    ssl_prefer_server_ciphers on;
+
+
+Reiniciar Nginx
+
+  
+
+[rokitoh@redorbita~]# /etc/init.d/nginx restart
+
+ 
+
+Un saludo.
+
+ 
+
+:wq!
+

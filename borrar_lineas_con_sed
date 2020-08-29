@@ -1,0 +1,11 @@
+Borrar las líneas que contengan un patrón en los ficheros de un directorio y sus subdirectorios
+
+Si combinamos el comando find y el comando sed, podemos borrar todas las líneas que contengan un determinado patrón en los ficheros de un directorio y sus subdirectorios.
+
+Como siempre, lo mejor es verlo con un ejemplo:
+
+# find /etc/puppet/modules/pkgsync-ies/files -type f | xargs sed -i '/wps-office/ d'
+
+Si os dáis cuenta find busca todos los ficheros (-type f) dentro del directorio /etc/puppet/modules/pkgsync-ies/files y sus subdirectorios y sed se encarga de eliminar las líneas. 
+En cuanto a xargs, es quien se encarga de "hacer la magia" de aplicar el comando sed sobre el contenido de cada uno de los ficheros encontrados.
+Publicado por primera vez en http://enavas.blogspot.com.es

@@ -1,0 +1,61 @@
+#!/bin/bash
+
+ARGS=$(getopt -q -o "vzcl:h:" -l "verbose,zip,copy,log:,host:" -n "argumentos" -- "$@");
+
+if [ $? -ne 0 ];
+then
+    echo "Ha habido un error al parsear los argumentos"
+    exit 1
+fi
+
+eval set -- "$ARGS";
+
+VERBOSE=0
+COPIAREMOTA=0
+
+while [ $# -gt 0 ]; do
+  case "$1" in
+    -v|--verbose)
+      VERBOSE=1
+      ;;
+    -z|--zip)
+      COMPRIMIDO=1
+      ;;
+    -c|--copy)
+      COPIAREMOTA=1
+      ;;
+    -l|--log)
+      LOGFILE="$2"
+      shift;
+      ;;
+    -h|--host)
+      HOSTCOPY="$2"
+      shift;
+      ;;
+    --)
+      shift;
+      break;
+      ;;
+  esac
+  shift
+done
+
+if [ $COPIAREMOTA -eq 1 ] && [ -z "$HOSTCOPY" ]
+then
+    echo "Si especifica copia remota -c DEBE especificar también host (-h)"
+    exit 1
+fi
+
+if [ $# -le 0 ]
+then
+    echo "Por favor, especifique los directorios a copiar"
+    exit 1
+fi
+
+echo "VERBOSE: $VERBOSE"
+echo "COMPRIMIDO: $COMPRIMIDO"
+echo "LOGFILE: $LOGFILE"
+echo "COPIA REMOTA: $COPIAREMOTA"
+echo "HOSTCOPY: $HOSTCOPY"
+echo "Directorios a copiar: $@"
+

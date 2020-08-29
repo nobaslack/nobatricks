@@ -1,0 +1,5 @@
+$ python -c "import requests; from bs4 import BeautifulSoup; print '\n'.join([cmd.text for cmd in BeautifulSoup(requests.get('http://www.commandlinefu.com/commands/by/${USER}').content, 'html.parser').find_all('div','command')])"
+
+This utilizes the Requests and BeautifulSoup libraries in Python to retrieve a user page on commandlinefu, parse it (error-tolerant) and extract all the lines of the following format:
+
+gzip *

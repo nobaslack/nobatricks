@@ -1,0 +1,38 @@
+Print all open regular files sorted by the number of file handles open to each.
+Delete
+Mark Unread	Sticky	Label	Archive	Share	Menu	|	Tuesday, August 18, 2015 1:58 PM	|	flatcap (http://flatcap.org)	|	Comments	|	
+$ find /proc/*/fd -xtype f -printf "%l\n" | grep -P '^/(?!dev|proc|sys)' | sort | uniq -c | sort -n
+
+List all open files of all processes.
+
+.
+find /proc/*/fd
+
+Look through the /proc file descriptors
+
+.
+-xtype f
+
+list only symlinks to file
+
+.
+-printf "%l\n"
+
+print the symlink target
+
+.
+grep -P '^/(?!dev|proc|sys)'
+
+ignore files from /dev /proc or /sys
+
+.
+sort | uniq -c | sort -n
+
+count the results
+
+.
+
+Many processes will create and immediately delete temporary files.
+
+These can the filtered out by adding:
+... | grep -v " (deleted)$" | ...

@@ -1,0 +1,72 @@
+   1.
+      import numpy as np
+   2.
+      import matplotlib.pyplot as plt
+   3.
+      from matplotlib.patches import Polygon
+   4.
+       
+   5.
+       
+   6.
+      def unit_circle(n, title=''):
+   7.
+          vertices = np.empty(shape=0)
+   8.
+          for k in np.arange(n):
+   9.
+              vertices = np.append(vertices, [[np.cos((2 * k + 1) / n * np.pi)],
+  10.
+                                              [np.sin((2 * k + 1) / n * np.pi)]])
+  11.
+       
+  12.
+          vertices = vertices.reshape((n, 2))
+  13.
+          font = {'family': 'serif',
+  14.
+                  'color': 'darkgreen',
+  15.
+                  'weight': 'normal',
+  16.
+                  'size': 16,
+  17.
+                  }
+  18.
+          plt.subplot(aspect='equal')
+  19.
+          plt.axis('off')
+  20.
+          plt.title(r'$Unit\;Roots\;Polygon\;With\;$' + title)
+  21.
+          plt.xlim(-1.5, 1.5)
+  22.
+          plt.ylim(-1.5, 1.5)
+  23.
+          plt.arrow(0., -1.4, 0., 2.8, fc="k", ec="k", head_width=0.05, head_length=0.1, zorder=2)
+  24.
+          plt.arrow(-1.4, 0., 2.8, 0., fc="k", ec="k", head_width=0.05, head_length=0.1, zorder=2)
+  25.
+          plt.text(1.35, .1, r'$X$', fontdict=font)
+  26.
+          plt.text(.1, 1.35, r'$Y$', fontdict=font)
+  27.
+          circle = plt.Circle((0, 0), 1, color='b', lw=2, fill=False, zorder=1)
+  28.
+          poly = Polygon(vertices, facecolor='w', edgecolor='r', lw=2, aa=True, joinstyle='bevel')
+  29.
+          plt.plot(*zip(*vertices), color='brown', marker='o', markersize=8, ls='')
+  30.
+          plt.gcf().gca().add_artist(circle)
+  31.
+          plt.gcf().gca().add_artist(poly)
+  32.
+          plt.show()
+  33.
+       
+  34.
+      if __name__ == '__main__':
+  35.
+          unit_circle(11, title=r'$P(x)=x^{11}+1$')
+
+

@@ -1,0 +1,25 @@
+Tutorial: Cómo rotar la pantalla de nuestro portátil
+Miguel Paradael30 septiembre, 2015/0 Comentarios - Deja el tuyo
+
+asus tp300la
+No hace mucho compré un Asus TP300LA y sinceramente no puedo estar más contento con este ultrabook. Me acompaña en cada uno de mis viajes y no está nada mal en cuanto a prestaciones. Eso sí, venía con una copia de Windows 8 que sinceramente nunca llegué a usar. Tras probar varias distribuciones GNU/Linux acabe por instalar Elementary OS y prácticamente funciona “casi” todo.
+
+Ese casi era la posibilidad de cambiar la orientación de  pantalla al mover la tapa. En Windows se supone que el cambio es automático pero en Linux parece que nos toca agudizar el ingenio pues los fabricantes no lo ponen nada fácil. Por suerte encontré varias guías que me han permitido resolver este problema.
+
+Desde el terminal ejecutamos el siguiente comando: xinput list
+
+Linux Ubuntu Rotar pantalla
+
+Debes tomar nota del “touchpad virtual” que hace que la pantalla táctil responda adecuadamente a nuestras pulsaciones. En mi caso el id es igual a 10.
+
+Ahora vamos con la orientación. Lo que quiero es que no solo cambie la orientación de la pantalla al moverla. También quiero que el ratón se calibre automáticamente con la nueva configuración para poder usar así el portátil como una tablet.
+
+Orientación normal: xrandr --output eDP1 --rotate normal ; sleep 1; xinput set-prop 10 "Coordinate Transformation Matrix" 1 0 0 0 1 0 0 0 1
+
+Girar a la derecha: xrandr --output eDP1 --rotate right ; sleep 1; xinput set-prop 10 "Coordinate Transformation Matrix" 0 1 0 -1 0 1 0 0 1
+
+Girar a la izquierda: xrandr --output eDP1 --rotate left ; sleep 1; xinput set-prop 10 "Coordinate Transformation Matrix" 0 -1 1 1 0 0 0 0 1
+
+Pantalla invertida: xrandr --output eDP1 --rotate inverted ; sleep 1; xinput set-prop 10 "Coordinate Transformation Matrix" -1 0 1 0 -1 1 0 0 1
+
+

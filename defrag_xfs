@@ -1,0 +1,20 @@
+xfs_db -c frag -r /dev/<partición>
+
+La recomendación es que si es mayor al 10 % procedas a desfragmentar, si es menor pues puedes dejarlo para luego.
+
+ 
+
+Ahora bien, si usamos “-c frag” se envía el comando que vayamos a ejecutar a xfs_db solo para consultar, si no colocamos el “-c frag” luego nos colocara un promp para que podamos ejecutar consultas y le colocaremos “frag”, la manera más rápida seria:
+xfs_db -c frag -r /dev/mmcblk0p3actual 66155, ideal 65615, fragmentation factor 0.82%
+
+Ahora procedemos a desfragmentar la partición, para comenzar debemos ejecutar xfs_fsr que está dentro del paquete xfsdump que intalamos anteriormente; xfs_fsr significa eXtendedFileSystem_FileSystemReorganicer, y su tarea es esa, reorganizar el sistema XFS.
+
+Entonces escribimos:
+xfs_fsr -v /dev/mmcblk0p3/ start inode=0ino=1928extents before:2 after:1 DONE ino=1928ino=219417extents before:2 after:1 DONE ino=219417ino=219395—
+
+ 
+
+Teniendo en cuenta que dependiendo el grado de fragmentación será mayor o menor el tiempo que se tarde en realizar la desfragmentación.
+
+Ya una vez finalizado el proceso revisamos de nuevo el grado de fragmentación:
+xfs_db -c frag -r /dev/mmcblk0p3

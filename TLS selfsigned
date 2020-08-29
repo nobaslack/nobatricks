@@ -1,0 +1,79 @@
+Generating TLS/SSL Self Signed Certificate for Nginx in Ubuntu LTS
+August 10, 2015August 10, 2015 Mohammad Hafiz mypapit Ismail
+
+This post concerns on generating self-signed TLS/SSL certificate for Nginx in Ubuntu LTS and assumes that you’ve configured nginx server with a default site.
+
+Step 1: Generate OpenSSL certificate
+
+sudo mkdir /etc/nginx/ssl
+sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/nginx/ssl/nginx.key -out /etc/nginx/ssl/nginx.crt
+
+You are about to be asked to enter information that will be incorporated
+into your certificate request.
+What you are about to enter is what is called a Distinguished Name or a DN.
+There are quite a few fields but you can leave some blank
+For some fields there will be a default value,
+If you enter '.', the field will be left blank.
+-----
+Country Name (2 letter code) [AU]:US
+State or Province Name (full name) [Some-State]:CA
+Locality Name (eg, city) []:Palo Alto
+Organization Name (eg, company) [Internet Widgits Pty Ltd]:Mypapit LLC
+Organizational Unit Name (eg, section) []:Billing
+Common Name (e.g. server FQDN or YOUR name) []:Mypapit
+Email Address []:mypapit+cert@gmail.com
+
+Step 2: Edit nginx site config
+
+You can edit nginx site config here, replace ‘default’ with your own server config.
+
+sudo nano -c /etc/nginx/sites-enable/default
+
+
+You will see this server block.
+
+server {
+        listen 80;
+        listen [::]:80;
+        server_name your_domain.com;
+        root /var/www/your_domain.com;
+        index index.html index.htm;
+
+...
+...
+}
+
+
+Add additional line (in italic)
+
+server {
+        listen 80;
+        listen [::]:80;
+
+    listen 443 ssl;
+
+       server_name your_domain.com;
+        root /var/www/your_domain.com;
+      index index.html index.htm;
+
+        ssl_certificate /etc/nginx/ssl/nginx.crt;
+        ssl_certificate_key /etc/nginx/ssl/nginx.key;
+        ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+        ssl_prefer_server_ciphers on;
+        add_header Strict-Transport-Security max-age=31536000;
+
+
+
+...
+...
+}
+
+
+Save file, and restart nginx server
+
+sudo nginx -t
+sudo service nginx restart
+
+Test configuration by going to https://your_domain.com.
+
+Done!

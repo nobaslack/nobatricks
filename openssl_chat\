@@ -1,0 +1,40 @@
+Cómo hacer un chat punto a punto seguro con openSSL
+6 abril, 2016 Author: Gaspar Fernández
+1 Comment
+1
+inShare
+
+photo-1453838956707-38a7aa3cd62d_r
+
+¡ Vamos al lío !
+
+Lo que haremos hoy, será iniciar un chat cifrado vía openssl. Para hacer que el chat sea seguro, utilizaremos un certificado openSSL y los componentes s_client y s_server que vienen con la aplicación.
+Iniciando el servidor
+
+Dicho chat será entre un cliente y un servidor. Para ello, primero, tenemos que crear un certificado para el servidor. Por si no queréis leer el otro post, dejo aquí unas pequeñas instrucciones:
+1
+	
+$ openssl req -x509 -newkey rsa:2048 -keyout clave.pem -out certificado.pem -days 3650 -nodes
+
+Nos preguntará una serie de cosas, país, estado, organización, e-mail, y cosas así que debemos rellenar.
+
+Tendremos la clave de nuestro certificado en clave.pem y el certificado en sí en certificado.pem. Este certificado será autofirmado, por lo que si lo utilizamos en cualquier otro lado cuestionará la autenticidad del mismo (pero ya que lo hemos hecho nosotros, ¿confiamos en nosotros mismos?).
+
+Para ejecutar el modo servidor debemos hacer lo siguiente:
+1
+	
+$ openssl s_server -key clave.pem -cert certificado.pem -accept 12345
+
+Con este comando estamos iniciando un servidor (s_server) seguro, cuya clave es “clave.pem”, el certificado será “certificado.pem” y aceptaremos conexiones por el puerto 12345
+
+Ahora sólo necesitamos el cliente.
+El cliente
+
+Para conectarnos con el servidor tendremos que hacer lo siguiente:
+1
+	
+$ openssl s_client -connect direccion_ip:12345
+
+Mucho más sencillo, conectaremos con la dirección ip del servidor al puerto 12345. Primero veremos información del certificado, y luego podremos escribir tanto en el cliente como en el servidor viendo en cada una de las pantallas los mensajes enviados y recibidos.
+
+

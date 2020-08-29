@@ -1,0 +1,5 @@
+set prefix=(hd0,msdos1)/grub2
+set root=(hd0,msdos1)
+insmod normal
+normal
+

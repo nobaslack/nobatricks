@@ -1,0 +1,11 @@
+ffmpeg
+
+Para los que prefieren trabajar desde la linea de comandos, ffmpeg tiene la opción de hacer screencasting. Con ffmpeg puedes grabar tu escritorio ejecutando la siguiente linea:
+
+ffmpeg -f x11grab -r 25 -s 1024x768 -i :0.0 -vcodec huffyuv screencast.avi
+
+-f indica el formato.
+-s indica la resolución
+-r indica fps.
+-i indica el “archivo de entrada”, en este caso la pantalla.
+

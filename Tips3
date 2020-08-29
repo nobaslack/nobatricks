@@ -1,0 +1,6 @@
+Print all open regular files sorted by the number of file handles open to each.
+Delete
+Mark Unread	Sticky	Label	Archive	Share	Menu	|	Tuesday, August 18, 2015 10:09 AM	|	kennethjor	|	Comments	|	
+$ sudo lsof | egrep 'w.+REG' | awk '{print $10}' | sort | uniq -c | sort -n
+
+This command run fine on my Ubuntu machine, but on Red Hat I had to change the awk command to `awk '{print $10}'`.

@@ -1,0 +1,76 @@
+Tips & Tricks: Como ver la lista de usuarios del dominio, su último cambio de password y su política al respecto
+Estimados amigos de Inseguros !!!
+
+
+Una de las configuraciones básicas de seguridad dentro de un dominio es la política de cambio de contraseñas. Aparte de por la buena práctica que constituye, es una obligación en España por la LOPD.
+
+Es normal que algunos usuarios, sobre todo los "avanzados" usen scripts o pequeñas chupuzas en sus sistemas, y suele pasar que seducen al administrador de sistemas para que le active el famoso:
+
+Como parte de una auditoría legal interna, o simplemente para trazar errores, podemos ejecutar este bonito powershell para facilitarnos la tarea.
+
+get-aduser -filter * -properties passwordlastset, passwordneverexpires | sort name | ft Name, passwordlastset, Passwordneverexpires
+
+Tenemos la opción de sacarlo por CSV, como todos los listados powershell, para facilitar el informe/colleja.
+
+Get-ADUser -filter * -properties passwordlastset, passwordneverexpires | sort-object name | select-object Name, passwordlastset, passwordneverexpires | Export-csv -path c:listos.csv
+
+Como siempre, espero que os guste.
+
+Sysadmin del mundo, NO TE DEJES SEDUCIR POR NADA y MUCHO MENOS POR UN CAFE DE MAQUINA.
+
+Aporreador de teclado Kino Makino
+Enviar por correo electrónicoEscribe un blogCompartir con TwitterCompartir con FacebookCompartir en Pinterest
+5 comentarios:
+
+   1.
+      tXambe23 de septiembre de 2015, 8:34
+
+      Hola,
+
+      Falla la ejecución esta bien escrito el cmdlet
+
+      El término 'get-aduser' no se reconoce como nombre de un cmdlet, función, archivo de script o programa ejecutable. C
+      ompruebe si escribió correctamente el nombre o, si incluyó una ruta de acceso, compruebe que dicha ruta es correcta
+      e inténtelo de nuevo.
+      En línea: 1 Carácter: 12
+      + get-aduser <<<< -filter * -properties passwordlastset, passwordneverexpires | sort name | ft Name, passwordlasts
+      et, Passwordneverexpires
+      + CategoryInfo : ObjectNotFound: (get-aduser:String) [], CommandNotFoundException
+      + FullyQualifiedErrorId : CommandNotFoundException
+      ResponderEliminar
+      Respuestas
+         1.
+            Kino Makino23 de septiembre de 2015, 9:10
+
+            Hola. Tira este comando: get-module -listavailable
+            Comprueba que tienes el módulo AD, y si no es así, tirale este:
+            import-module activedirectory
+
+            Suerte.
+            Eliminar
+            Responder
+   2.
+      Unknown23 de septiembre de 2015, 10:05
+
+      Muy bueno Kino.
+
+      ¿Donde puedo hacerme con un listado completo de propiedades de objetos, es decir, passwordlastset, passwordneverexpires etc etc?
+
+      Muchas gracias.
+      ResponderEliminar
+      Respuestas
+         1.
+            Kino Makino23 de septiembre de 2015, 10:30
+
+            Prueba aquí señor !!
+            gracias por comentar !!
+            https://technet.microsoft.com/en-us/library/ee617241.aspx
+            Eliminar
+            Responder
+   3.
+      Parker Phoenix23 de septiembre de 2015, 17:17
+
+      Entonces, por ejemplo, se puede sacar el listado de propiedades de un usuario así:
+
+      Get-ADUser -identity usuario -properties * | Export-csv -path c:usuario.csv
+

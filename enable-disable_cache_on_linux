@@ -1,0 +1,2 @@
+hdparm -W1 /dev/sda1 (cache activated)
+hdparm -W0 /dev/sda1 (cache desactivated)

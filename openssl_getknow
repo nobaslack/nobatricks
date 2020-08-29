@@ -1,0 +1,74 @@
+How To Read The SSL Certificate Info From the CLI
+Author: Mattias Geniar
+Aug
+10
+2015
+1 Comment
+
+This guide will show you how to read the SSL Certificate Information from a text-file on your server or from a remote server by connecting to it with the OpenSSL client.
+
+Read the SSL Certificate information from a text-file at the CLI
+
+If you have your certificate file available to you on the server, you can read the contents with the openssl client tools.
+
+By default, your certificate will look like this.
+
+$ cat certificate.crt
+-----BEGIN CERTIFICATE-----
+MIIEzTCCA7WgAwIBAgISESHAjlbjcoBHxBYXS12oY6VjMA0GCSqGSIb3DQEBCwUA
+...
+CzgXBhDR3themzPx4jwx2ckNFpNDK/6yQgrKaHTewAAj
+-----END CERTIFICATE-----
+
+Which doesn't really tell you much.
+
+However, you can decrypt that certificate to a more readable form with the openssl tool.
+
+$ openssl x509 -text -noout -in certificate.crt 
+
+It will display the SSL certificate output like expiration date, common name, issuer, ...
+
+Here's what it looks like for my own certificate.
+
+$ openssl x509 -text -noout -in certificate.crt 
+
+Certificate:
+...
+    Signature Algorithm: sha256WithRSAEncryption
+        Issuer: C=BE, O=GlobalSign nv-sa, CN=AlphaSSL CA - SHA256 - G2
+        Validity
+            Not Before: Dec 16 20:01:40 2014 GMT
+            Not After : Dec 16 20:01:40 2017 GMT
+        Subject: C=BE, OU=Domain Control Validated, CN=ma.ttias.be
+        Subject Public Key Info:
+            Public Key Algorithm: rsaEncryption
+                Public-Key: (2048 bit)
+...
+
+The openssl tools are a must-have when working with certificates on your Linux server.
+Read the SSL Certificate information from a remote server
+
+You may want to monitor the validity of an SSL certificate from a remote server, without having the certificate.crt text file locally on your server? You can use the same openssl for that.
+
+To connect to a remote host and retrieve the public key of the SSL certificate, use the following command.
+
+$ openssl s_client -showcerts -connect ma.ttias.be:443
+
+This will connect to the host ma.ttias.be on port 443 and show the certificate. It's output looks like this.
+
+$ openssl s_client -showcerts -connect ma.ttias.be:443
+
+-----BEGIN CERTIFICATE-----
+MIIEzTCCA7WgAwIBAgISESHAjlbjcoBHxBYXS12oY6VjMA0GCSqGSIb3DQEBCwUA
+...
+CzgXBhDR3themzPx4jwx2ckNFpNDK/6yQgrKaHTewAAj
+-----END CERTIFICATE-----
+---
+Server certificate
+subject=/C=BE/OU=Domain Control Validated/CN=ma.ttias.be
+issuer=/C=BE/O=GlobalSign nv-sa/CN=AlphaSSL CA - SHA256 - G2
+---
+
+There's many more output, like the intermediate CA certificates, the raw certificates (encoded) and more information on the ciphers used to negotiate with the remote server.
+
+You can use it to find the expiration date, to test for SSL connection errors, ...

